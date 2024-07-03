@@ -1,0 +1,57 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+  <!-- HTML structure for each post -->
+{% for post in page_posts %}
+  <div class="card mb-3">
+      <div class="card-body">
+          <div class="row">
+              <div class="col-auto">
+              <!-- User avatar -->
+              <img src="https://i.pinimg.com/564x/0e/6e/8c/0e6e8ce4541732f9a6e6b32325939338.jpg" alt="User Avatar" class="rounded-circle" width="50">
+              </div>
+              <div class="col">
+              <!-- Username and date -->
+              <h5 class="card-title text-capitalize">{{ post.user }}</h5>
+              <p class="card-text text-muted">{{ post.date }}</p>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col">
+              <!-- Post content -->
+              <p class="card-text">{{ post.content }} </p>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col">
+              <!-- Number of likes and actions -->
+              <div class="d-flex">
+                  <button class="btn btn-link btn-sm p-0 pr-2 like-button">
+                  <i class="far fa-heart"></i>
+                  </button>
+                  <p class="card-text mb-0">0 Likes</p>
+                  <button class="btn btn-link btn-sm p-0 pl-2">
+                  <i class="fas fa-retweet"></i>
+                  </button>
+              </div>
+              </div>
+          </div>
+        
+      </div>
+  </div>
+{% endfor %}
+  <nav aria-label="Page navigation example">
+    <ul class="pagination">
+      {% if page_posts.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_posts.previous_page_number }}">Previous</a></li>
+      {% endif %}
+      {% if page_posts.has_next %}
+         <li class="page-item"><a class="page-link" href="?page={{ page_posts.next_page_number }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  
+{% endblock %}
