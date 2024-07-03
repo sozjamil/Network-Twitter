@@ -16,15 +16,7 @@
                 <ul class="list-unstyled">
                     <li><strong>Followers:</strong> {{followers}}</li>
                     <li><strong>Following:</strong> {{following}}</li>
-                    {% comment %} {% if user.is_authenticated %}
-                        {% if user != user_profile %}
-                            {% if user in request.user.following.all %}
-                                <button id="unfollow-btn" data-user-id="{{ user.id }}" data-action="unfollow">Unfollow</button>
-                            {% else %}
-                                <button id="follow-btn" data-user-id="{{ user.id }}" data-action="follow">Follow</button>
-                            {% endif %}
-                        {% endif %}
-                    {% endif %} {% endcomment %}
+                    
                 </ul>
             </div>
         </div>

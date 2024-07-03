@@ -115,28 +115,3 @@ def profile_page(request, user_id):
         "isFollowing": isFollowing,
         "user_profile":user
     })
-    
-# def follow_unfollow(request):
-#     if request.method == 'POST':
-#         user_id = request.POST.get('user_id')
-#         action = request.POST.get('action')
-
-#         # Add code to handle the follow/unfollow action
-#         # Verify authentication and perform the necessary database updates
-
-#         # Retrieve the user object based on the user_id
-#         user = User.objects.get(id=user_id)
-
-#         # Perform the follow/unfollow action and update the database
-#         if action == 'follow':
-#             request.user.following.add(user)
-#         elif action == 'unfollow':
-#             request.user.following.remove(user)
-#         else:
-#             # Handle invalid action
-
-#         # Return a JSON response indicating the success or failure of the action
-#          return JsonResponse({'status': 'success'})  # or {'status': 'failure'}
-
-#      # Handle invalid requests (GET, etc.)
-#     return JsonResponse({'error': 'Invalid request'})
