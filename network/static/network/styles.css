@@ -1,6 +1,9 @@
 @media only screen and (min-width: 1024px) {
-    .nav-item:not(.display-username){
+    .navbar-nav .nav-item:not(.display-username){
       display: none;
+    }
+    .display-navbar {
+      display: block;
     }
   }
 
@@ -27,7 +30,20 @@
   #sidebar-wrapper {
     float: left;
   }
-/* @media (min-width: 768px) {
+  .nav-brand {
+    margin-left: 15px;
+    color:#0d6efd;
+    margin-top:10px;
+    font-size:x-large ;
+  }
+  
+  .navbar-brand:hover {
+    background: rgba(29, 161, 242, 0.1);
+    border-radius: 50%;
+    color: #1da0f2;
+    margin-right: 23px;
+}
+  /* @media (min-width: 768px) {
 .navbar-toggler {
     display: block;
 }

@@ -92,14 +92,14 @@ def profile_page(request, user_id):
     following=Follow.objects.filter(user=user).count()
     followers=Follow.objects.filter(user_follower=user).count()
     
-    try:
-        checkFollow= followers.filter(user=User.objects.get(pk=request.user.id))
-        if len(checkFollow) != 0:
-            isFollowing =  True
-        else:
-            isFollowing = False
-    except:
-        isFollowing=False
+    # try:
+    #     checkFollow= followers.filter(user=User.objects.get(pk=request.user.id))
+    #     if len(checkFollow) != 0:
+    #         isFollowing =  True
+    #     else:
+    #         isFollowing = False
+    # except:
+    #     isFollowing=False
 
 
     # pagination: Display 10 posts per page
@@ -112,6 +112,8 @@ def profile_page(request, user_id):
         "username":user.username,
         "following": following,
         "followers":followers,
-        "isFollowing": isFollowing,
-        "user_profile":user
+        # "isFollowing": isFollowing,
+        "user_profile":user,
+
     })
+    
