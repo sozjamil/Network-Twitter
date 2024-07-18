@@ -2,7 +2,14 @@
 {% load static %}
 
 {% block body %}
-
+{% if user.is_authenticated %}
+        <h2>New Post</h2>
+        <form action="{% url 'newpost' %}" method="POST">
+            {% csrf_token %}
+            <textarea name="content" rows="4" cols="50"></textarea>
+            <input type="submit" value="post" class="btn btn-primary"/>
+        </form>
+    {% endif%}
   <!-- HTML structure for each post -->
 {% for post in page_posts %}
   <div class="card mb-3">
@@ -17,6 +24,14 @@
               <h5 class="card-title text-capitalize">{{ post.user }}</h5>
               <p class="card-text text-muted">{{ post.date }}</p>
               </div>
+              <div class="col">
+                {% comment %} {% if request.user == post.user %}
+                    <div class="float-right">
+                          <!-- Add the edit button or link -->
+                          <a href="{% url 'edit_post' post_id=post.id %}">Edit</a>
+                    </div> 
+                {% endif %} {% endcomment %}
+            </div>
           </div>
           <div class="row">
               <div class="col">
