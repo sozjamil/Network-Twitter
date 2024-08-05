@@ -1,5 +1,5 @@
 @media only screen and (min-width: 1024px) {
-    .navbar-nav .nav-item:not(.display-username){
+    .navbar-nav {
       display: none;
     }
     .display-navbar {
@@ -8,11 +8,6 @@
   }
 
 @media only screen and (max-width: 1024px) {
-    /* Styles to apply for screens with a maximum width of 768px (typically mobile devices) */
-    /* li.display-username {
-      display: none;
-    }     */
-    
     .center-column {
       display: block;
       width: 100%;
@@ -27,24 +22,49 @@
     
   }
 
-  #sidebar-wrapper {
-    float: left;
-  }
-  .nav-brand {
-    margin-left: 15px;
-    color:#0d6efd;
-    margin-top:10px;
-    font-size:x-large ;
-  }
-  
-  .navbar-brand:hover {
-    background: rgba(29, 161, 242, 0.1);
-    border-radius: 50%;
-    color: #1da0f2;
-    margin-right: 23px;
+.left-column {
+  position: fixed;
+  top: 15px;
+  left: 100px;
+  height: 400px;
+  width: 200px;
+  background-color: rgb(255, 255, 255); /* Default background */
+  padding: 20px;
+  border:#000000;
+
 }
-  /* @media (min-width: 768px) {
+
+#sidebar-wrapper {
+  float: left;
+  width: 100px;
+  
+  
+
+
+}
+
+#sidebar-wrapper a{
+  float: left;
+  color: black; /* Default color */
+  /*background-color: white;  Default background */
+
+}
+.nav-brand {
+  margin-left: 15px;
+  color:#000000;
+  margin-top:10px;
+  font-size:x-large ;
+}
+
+.navbar-brand:hover {
+  background: rgba(29, 161, 242, 0.1);
+  border-radius: 50%;
+  color: #000000;
+  margin-right: 23px;
+}
+
+/* @media (min-width: 768px) {
 .navbar-toggler {
-    display: block;
+  display: block;
 }
 } */

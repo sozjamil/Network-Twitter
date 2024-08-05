@@ -3,12 +3,26 @@
 
 {% block body %}
 <h1></h1>
+<style>
+    .like-button{
+        padding: 6px 6px;     /* Decrease vertical padding */
+        font-size: 12px;      /* Adjust font size */
+        height: auto;         /* Let height adjust based on content */
+        line-height: 1;       /* Adjust line height for tighter fit */
+        border-radius: 3px;   /* Slightly reduce border radius */
+        margin-right: 5px;    /* Space between button and text */
+        min-height: 24px;     /* Ensure minimum height for usability */
+      }
+</style>
 <script>
+        
+    //retrieves the value of cookie from the browser's document cookies
     function getCookie(name){
         const  value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if(parts.length == 2) return parts.pop().split(';').shift();
     }
+    // Editing content without refreshing the page using Javascript
     function submitHandler(id){
         const textareaValue = document.getElementById(`textarea_${id}`).value;
         const content = document.getElementById(`content_${id}`);
@@ -26,39 +40,56 @@
         .then(response => response.json())
         .then(result =>{
             content.innerHTML = result.data;
-            // Hide the modal
-            $(modal).modal('hide');
-            //modal.classList.remove('show');
-            //modal.setAttribute('aria-hidden', 'true');
-            //modal.setAttribute('style','display: none');
 
+            // on every modal change state like in hidden modal
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.setAttribute('style', 'display: none');
+        
             // get modal backdrops
             const modalsBackdrops = document.getElementsByClassName('modal-backdrop');
-
-            for (let i=0; i<modalsBackdrops.length; i++){
+        
+            // remove every modal backdrop
+            for(let i=0; i<modalsBackdrops.length; i++){
                 document.body.removeChild(modalsBackdrops[i]);
             }
-
         }) 
         .catch(error => {
             console.error('Error:', error);
         });
-    }     
-    
+    }  
+
+
+    // Handling Like/Unlike button using Javascript 
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn-primary[data-post-id]').forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                toggleLike(postId);
+            });
+        });
+    });
+    // Like/Unlike without refreshing the page using Javascript
+    function toggleLike(postId) {
+        fetch(`/toggle_like/${postId}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const likeButton = document.getElementById(`like-button-${postId}`);
+            const likeCount = document.getElementById(`like-count-${postId}`);
+
+            likeButton.textContent = data.liked ? 'Unlike' : 'Like';
+            likeCount.textContent = data.like_count;
+        })
+        .catch(error => console.error('Error:', error));
+    }
 </script>
-{% comment %} <ul class="about">
-    {% if profile.follows.count <= 1 %}
-        <li><span>{{ profile.follows.count }}</span> Follower</li>
-    {% else %}
-        <li><span>{{ profile.follows.count }}</span> Followers</li>
-    {% endif %}
-    <li><span>{{ profile.fans.count }} </span>Following</li>
-    {% if post_count <= 1 %}
-        <li><span>{{post_count}} </span>Post</li>
-    {% elif post_count >= 2 %}
-        <li><span>{{post_count}} </span>Posts</li>
-    {% endif %}
-</ul> {% endcomment %}
+
 <div class="card">
     <div class="card-header bg-secondary text-white">
         <h5 class="mb-0 text-capitalize">{{ profile.username}}</h5>
@@ -71,7 +102,9 @@
                 <ul class="list-unstyled">
                     <li><strong>Followers:</strong> {{profile.follows.count}}</li>
                     <li><strong>Following:</strong> {{profile.fans.count}}</li>
-                    <li><strong>Posts:</strong> {{post.count}}</li>
+                    <li><strong>Posts:</strong> {{post_count}}</li>
+                    
+                    <!-- Follow/Unfollow button-->
                     <form method="POST">
                         {% csrf_token %}
                         {% if user.is_authenticated and profile != request.user %}
@@ -84,10 +117,7 @@
                                     Follow 
                                 </button>
                             {% endif %}
-                        {% else %}
-                            <a href="{% url 'logout' %}" class="btn btn-primary rounded-pill my-1 mx-1 py-1 py-1">Logout</a>
                         {% endif %}
-                    
                     </form>
                 </ul>
             </div>
@@ -97,75 +127,82 @@
 <div class="card-header boder border-primary bg-white ">
     <h5 class="mb-0 text-capitalize">Posts</h5>
 </div>
-
-{% for post in profile_post %}
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-auto">
-            <!-- User avatar -->
-            <img src="https://i.pinimg.com/564x/0e/6e/8c/0e6e8ce4541732f9a6e6b32325939338.jpg" alt="User Avatar" class="rounded-circle" width="50">
-            </div>
-            <div class="col">
-            <!-- Username and date -->
-            <h5 class="card-title text-capitalize">{{ post.user }}</h5>
-            <p class="card-text text-muted">{{ post.date }}</p>
-
-            </div>
-            <div class="col">
-                <div class="w-100 d-flex justify-content-end">
-                    {% if request.user == post.user %}
-                    <div class="d-flex justify-content-aroud">
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#modal_edit_post_{{ post.id}}">Edit</button>
-                    </div>
-                    <div class="modal fade" id="modal_edit_post_{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="modal_edit_post_{{ post.id }}" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title">Edit Post</h5>
-                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                            </div>
-                            <div class="modal-body">
-                              <textarea rows="5" id="textarea_{{ post.id }}" class="form-control" name="content">{{post.content}} </textarea>
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-primary" onclick="submitHandler({{ post.id }})">Save changes</button>
-                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    {%endif%}
+<!-- If there was no post yet display this message either show posts posted by user -->
+{% if post_count == 0 %}
+        <div class="text-center my-4"> No posts yet</div>
+{% else %}
+    {% for post in profile_post %}
+    <div class="card mb-3" >
+        <div class="card-body">
+            <div class="row">
+                <div class="col-auto">
+                <!-- User avatar -->
+                <img src="https://i.pinimg.com/564x/0e/6e/8c/0e6e8ce4541732f9a6e6b32325939338.jpg" alt="User Avatar" class="rounded-circle" width="50">
                 </div>
-          
+                <div class="col">
+                <!-- Username and date -->
+                <h5 class="card-title text-capitalize">{{ post.user }}</h5>
+                <p class="card-text text-muted">{{ post.date }}</p>
+
+                </div>
+                <div class="col">
+                    <div class="w-100 d-flex justify-content-end">
+                        <!-- Edit post using Bootstrap's Modal -->
+                        {% if request.user == post.user %}
+                        <div class="d-flex justify-content-aroud">
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#modal_edit_post_{{ post.id}}">Edit</button>
+                        </div>
+                        <div class="modal fade" id="modal_edit_post_{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="modal_edit_post_{{ post.id }}" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title">Edit Post</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                </div>
+                                <div class="modal-body">
+                                <textarea rows="5" id="textarea_{{ post.id }}" class="form-control" name="content">{{post.content}} </textarea>
+                                </div>
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="submitHandler({{ post.id }})">Save changes</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        {%endif%}
+                    </div>
+                </div>
             </div>
+            <div class="row">
+                <div class="col">
+                <!-- Post content -->
+                <p class="card-text content" id="content_{{ post.id }}">{{ post.content }} </p> 
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                <!-- Number of likes and Like/Unlike button -->
+                    <div class="d-flex mt-2">
+                        <button id="like-button-{{ post.id }}" class="btn btn-primary like-button" data-post-id="{{ post.id }}">
+                            {% if post.is_liked_by_user %}
+                                Unlike
+                            {% else %}
+                                Like
+                            {% endif %}
+                        </button>
+                        <span id="like-count-{{ post.id }}" class="card-text ml-2">{{ post.likes.count }} </span> &nbsp;Likes
+                    </div>
+                </div>
+            </div>
+        
         </div>
-        <div class="row">
-            <div class="col">
-            <!-- Post content -->
-            <p class="card-text content" id="content_{{ post.id }}">{{ post.content }} </p> 
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-            <!-- Number of likes and actions -->
-            <div class="d-flex">
-                <button class="btn btn-link btn-sm p-0 pr-2 like-button">
-                <i class="far fa-heart"></i>
-                </button>
-                <p class="card-text mb-0">0 Likes</p>
-                <button class="btn btn-link btn-sm p-0 pl-2">
-                <i class="fas fa-retweet"></i>
-                </button>
-            </div>
-            </div>
-        </div>
-      
     </div>
-</div>
-{% endfor %}
+    {% endfor %}
+{% endif %}
+
+<!-- page pagination -->
 <nav aria-label="Page navigation example">
   <ul class="pagination">
     {% if page_posts.has_previous %}
