@@ -61,35 +61,6 @@
   }
 </style>
 
-<script>
-  function getCookie(name) {
-    const value = `; ${document.cookie}`
-    const parts = value.split(`; ${name}=`)
-    if (parts.length == 2) return parts.pop().split(';').shift()
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.like-btn').forEach((button) => {
-      button.addEventListener('click', () => {
-        const postId = button.dataset.postId
-        const likeCountSpan = document.getElementById(`like-count-${postId}`)
-
-        fetch(`/toggle_like/${postId}`, {
-          method: 'GET',
-          headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-          }
-        })
-          .then((response) => response.json())
-          .then((result) => {
-            button.textContent = result.liked ? 'Unlike' : 'Like'
-            likeCountSpan.textContent = result.like_count
-          })
-          .catch((error) => console.log('Error:', error))
-      })
-    })
-  })
-</script>
 
 <!-- New Post Form -->
 {% if user.is_authenticated %}
@@ -122,8 +93,12 @@
             </div>
             <div class="post-content">{{ post.content }}</div>
             <div class="mt-2 d-flex align-items-center">
-              <button class="like-btn btn btn-outline-primary like-button" data-post-id="{{ post.id }}" id="like-btn-{{ post.id }}">
-                {% if post.id in liked_posts %}Unlike{% else %}Like{% endif %}
+              <button class="like-btn btn btn-light like-button" data-post-id="{{ post.id }}" id="like-btn-{{ post.id }}">
+                {% if post.id in liked_posts %}
+                  <i class="fa-solid fa-heart text-danger"></i>
+                {% else %}
+                  <i class="fa-regular fa-heart"></i>
+                {% endif %}
               </button>
               <span id="like-count-{{ post.id }}" class="ms-2">{{ post.likes.count }}</span>&nbsp;Likes
             </div>
@@ -149,4 +124,6 @@
     {% endif %}
   </ul>
 </nav>
+<script src="{% static 'network/scripts/like.js' %}"></script>
+
 {% endblock %}
