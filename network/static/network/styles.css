@@ -94,9 +94,19 @@
 
 
 .twitter-sidebar {
-  min-height: 100vh;
-  border-right: 1px solid #ddd;
-  background-color: white;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  background: #fff;
+  border-right: 1px solid #eee;
+  padding-top: 1.5rem;
+  padding-bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;   /* Prevent horizontal scroll */
+  min-width: 200px;     /* Set a minimum width */
+  max-width: 220px;     /* Set a maximum width */
+  box-sizing: border-box;
 }
 
 .twitter-sidebar a.nav-link {

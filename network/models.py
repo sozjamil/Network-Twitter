@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-
+# user: admin password: 12345
 class User(AbstractUser):
     follows = models.ManyToManyField("self", blank=True, related_name="fans", symmetrical=False)
     
