@@ -140,17 +140,24 @@ def profile_page(request, user_id):
     })
 
 #displaying following page contains posts posted by whom user follows
-@login_required
+# @login_required
 def home_page(request):
     # Get posts from users the current user follows
-    all_posts = Post.objects.filter(user__in=request.user.follows.all()).order_by("-id")
+    if request.user.is_authenticated:
+        all_posts = Post.objects.filter(user__in=request.user.follows.all()).order_by("-id")
+    else:
+        all_posts = Post.objects.none()  # or show all posts, or an empty list
+    
     paginator = Paginator(all_posts, 10)
     page_number = request.GET.get('page')
     page_posts = paginator.get_page(page_number)
 
     # Set is_liked_by_user for each post
     for post in page_posts:
-        post.is_liked_by_user = post.likes.filter(user=request.user).exists()
+        if request.user.is_authenticated:
+            post.is_liked_by_user = post.likes.filter(user=request.user).exists()
+        else:
+            post.is_liked_by_user = False
 
     return render(request, "network/home.html", {
         "page_posts": page_posts,
