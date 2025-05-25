@@ -2,68 +2,48 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    {% comment %}bootstrap:5{% endcomment %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    {% comment %}bootstrap:4{% endcomment %}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Include Bootstrap CSS for styling for like/unlike button -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Font Awesome (icons) -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
-    <title>
-      {% block title %}
-        Social Network
-      {% endblock %}
-    </title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
-    <link href="{% static 'network/styles.css' %}" rel="stylesheet" />
-  </head>
-  <body>
-    <!-- Navigation bar for mobile users( max = 1024px ) -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+  <!-- Custom styles -->
+  <link href="{% static 'network/styles.css' %}" rel="stylesheet" />
+
+  <title>{% block title %}Social Network{% endblock %}</title>
+</head>
+<body>
+
+  <!-- Mobile Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light d-md-none	">
+    <div class="container-fluid">
+      <a href="{% url 'index' %}" class="mb-4 fs-4 fw-bold text-decoration-none d-md-none	">Network</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
+        <ul class="navbar-nav ms-auto">
           {% if user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link active text-capitalize" href="{% url 'profile_page' user_id=user.id %}">{{ user.username }}</a>
+              <a class="nav-link text-capitalize" href="{% url 'profile_page' user_id=user.id %}">{{ user.username }}</a>
             </li>
-          {% endif %}
-
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'index' %}">All Posts</a>
-          </li>
-          <li class="nav-item">
-            {% if user.is_authenticated %}
-              <a class="nav-link" href="{% url 'following_page' %}"><i class="fab fa-slack-hash"></i> <span class="menu-text">Following</span></a>
-            {% else %}
-              <a class="nav-link" href="#"><i class="fab fa-slack-hash"></i> <span class="menu-text">Following</span></a>
-            {% endif %}
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#"><i class="far fa-bell"></i> <span class="menu-text">Notifications</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#"><i class="far fa-envelope"></i> <span class="menu-text">Messages</span></a>
-          </li>
-          {% if user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+              <a class="nav-link" href="{% url 'following_page' %}">Following</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
           {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Log In</a>
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'register' %}">Register</a>
@@ -71,66 +51,58 @@
           {% endif %}
         </ul>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-    <div class="body">
-      <div class="container">
-        <div class="row justify-content-md-center">
-          <div class="col col-lg-4 border left-column">
-            <div class="ms-auto" id="sidebar-wrapper">
-              <!-- Navigation bar for screens > 1024px -->
-              <ul class="nav flex-column display-navbar">
-                <a class="navbar-brand .lead nav-brand" href="#"><strong>Network</strong></a>
+  <div class="container-fluid mt-3">
+    <div class="row justify-content-center">
 
-                <li class="nav-item">
-                  {% if user.is_authenticated %}
-                    <a class="nav-link text-capitalize" href="{% url 'profile_page' user_id=user.id %}"><i class="far fa-user-circle"></i> <span class="menu-text">{{ user.username }}</span></a>
-                  {% endif %}
-                </li>
+      <div class="col-2 d-none d-md-flex flex-column align-items-start py-3 px-2 sticky-top twitter-sidebar">
+        <a href="{% url 'index' %}" class="mb-4 fs-4 fw-bold text-decoration-none">Network</a>
 
-                <li class="nav-item">
-                  <a class="nav-link active" href="{% url 'index' %}"><i class="fas fa-house-damage"></i> <span class="menu-text">All Posts</span></a>
-                </li>
-                <li class="nav-item">
-                  {% if user.is_authenticated %}
-                    <a class="nav-link" href="{% url 'following_page' %}"><i class="fab fa-slack-hash"></i> <span class="menu-text">Following</span></a>
-                  {% else %}
-                    <a class="nav-link" href="#"><i class="fab fa-slack-hash"></i> <span class="menu-text">Following</span></a>
-                  {% endif %}
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#"><i class="far fa-bell"></i> <span class="menu-text">Notifications</span></a>
-                </li>
+        <a href="{% url 'index' %}" class="nav-link py-2"><i class="fas fa-home me-2"></i> Home</a>
 
-                <li class="nav-item">
-                  <a class="nav-link" href="#"><i class="far fa-envelope"></i> <span class="menu-text">Messages</span></a>
-                </li>
+        <a href="{% if user.is_authenticated %}{% url 'following_page' %}{% else %}{% url 'login' %}{% endif %}" class="nav-link py-2">
+          <i class="fab fa-slack-hash me-2"></i> Following
+        </a>
 
-                {% if user.is_authenticated %}
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}"><i class="far fa-bookmark"></i> <span class="menu-text">Logout</span></a>
-                  </li>
-                {% else %}
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}"><i class="far fa-list-alt"></i> <span class="menu-text">Login</span></a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url 'register' %}"><i class="fas fa-ellipsis-h"></i> <span class="menu-text">Register</span></a>
-                  </li>
-                {% endif %}
-                <li class="nav-item mobile-post">
-                  <a class="nav-link2" href="#"><i class="far fa-edit"></i></a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="col-lg-7 center-column">
-            {% block body %}
+        <a href="{% url 'login' %}" class="nav-link py-2">
+          <i class="fas fa-search me-2"></i> Explore
+        </a>
 
-            {% endblock %}
-          </div>
-        </div>
+        <a href="#" class="nav-link py-2">
+          <i class="far fa-bell me-2"></i> Notifications
+        </a>
+
+        <a href="#" class="nav-link py-2">
+          <i class="far fa-envelope me-2"></i> Messages
+        </a>
+
+        <a href="{% if user.is_authenticated %}{% url 'profile_page' user_id=user.id %}{% else %}{% url 'login' %}{% endif %}" class="nav-link py-2">
+          <i class="far fa-user-circle me-2"></i> Profile
+        </a>
+
+        {% if user.is_authenticated %}
+          <a href="{% url 'logout' %}" class="nav-link py-2 text-danger">
+            <i class="fas fa-sign-out-alt me-2"></i> Logout
+          </a>
+        {% else %}
+          <a href="{% url 'login' %}" class="nav-link py-2"><i class="fas fa-sign-in-alt me-2"></i> Login</a>
+          <a href="{% url 'register' %}" class="nav-link py-2"><i class="fas fa-user-plus me-2"></i> Register</a>
+        {% endif %}
+
+        <!-- Post Button -->
+        <a href="#" class="btn btn-primary rounded-pill mt-4 w-100 fw-bold">Post</a>
+      </div>
+
+
+      <!-- Main Content -->
+      <div class="col-lg-7">
+        {% block body %}
+        {% endblock %}
       </div>
     </div>
-  </body>
+  </div>
+
+</body>
 </html>

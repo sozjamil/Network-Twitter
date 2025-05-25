@@ -1,119 +1,152 @@
 {% extends 'network/layout.html' %}
-
 {% block body %}
-  {% load static %}
-  <style>
-    .like-button {
-      padding: 6px 6px; /* Decrease vertical padding */
-      font-size: 12px; /* Adjust font size */
-      height: auto; /* Let height adjust based on content */
-      line-height: 1; /* Adjust line height for tighter fit */
-      border-radius: 3px; /* Slightly reduce border radius */
-      margin-right: 5px; /* Space between button and text */
-      min-height: 24px; /* Ensure minimum height for usability */
-    }
-  </style>
-  <script>
-    //retrieves the value of cookie from the browser's document cookies
-    function getCookie(name) {
-      const value = `; ${document.cookie}`
-      const parts = value.split(`; ${name}=`)
-      if (parts.length == 2) return parts.pop().split(';').shift()
-    }
-    // Handling Like/Unlike button using Javascript
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.like-btn').forEach((button) => {
-        button.addEventListener('click', () => {
-          const postId = button.dataset.postId
-          const likeCountSpan = document.getElementById(`like-count-${postId}`)
-    
-          fetch(`/toggle_like/${postId}`, {
-            method: 'GET',
-            headers: {
-              'X-CSRFToken': '{{ csrf_token }}'
-            }
-          })
-            .then((response) => response.json())
-            .then((result) => {
-              if (result.liked) {
-                button.textContent = 'Unlike'
-              } else {
-                button.textContent = 'Like'
-              }
-              likeCountSpan.textContent = result.like_count
-            })
-            .catch((error) => console.log('Error:', error))
+{% load static %}
+
+<style>
+  .like-button {
+    padding: 4px 10px;
+    font-size: 13px;
+    border-radius: 20px;
+    min-height: 32px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .like-button:hover {
+    background-color: #0d6efdcc;
+    color: white;
+  }
+
+  .tweet-box textarea {
+    border: none;
+    resize: none;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 12px;
+    background-color: #f5f8fa;
+  }
+
+  .tweet-box textarea:focus {
+    outline: none;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+  }
+
+  .user-avatar {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .post-card {
+    border-radius: 16px;
+    border: 1px solid #e6ecf0;
+  }
+
+  .username {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .timestamp {
+    font-size: 13px;
+    color: #657786;
+  }
+
+  .post-content {
+    font-size: 15px;
+    line-height: 1.4;
+    margin-top: 8px;
+  }
+</style>
+
+<script>
+  function getCookie(name) {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length == 2) return parts.pop().split(';').shift()
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.like-btn').forEach((button) => {
+      button.addEventListener('click', () => {
+        const postId = button.dataset.postId
+        const likeCountSpan = document.getElementById(`like-count-${postId}`)
+
+        fetch(`/toggle_like/${postId}`, {
+          method: 'GET',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
         })
+          .then((response) => response.json())
+          .then((result) => {
+            button.textContent = result.liked ? 'Unlike' : 'Like'
+            likeCountSpan.textContent = result.like_count
+          })
+          .catch((error) => console.log('Error:', error))
       })
     })
-  </script>
+  })
+</script>
 
-  <!-- New post structure -->
-  {% if user.is_authenticated %}
-    <div class="h5">New Post:</div>
+<!-- New Post Form -->
+{% if user.is_authenticated %}
+<div class="card mb-4 shadow-sm tweet-box">
+  <div class="card-body">
     <form action="{% url 'newpost' %}" method="POST">
       {% csrf_token %}
-      <textarea name="content" rows="4" cols="50"></textarea>
-      <input type="submit" value="post" class="btn btn-primary" />
+      <textarea name="content" rows="3" placeholder="What's happening?"></textarea>
+      <div class="text-end mt-2">
+        <input type="submit" value="Post" class="btn btn-primary rounded-pill px-4" />
+      </div>
     </form>
-  {% endif %}
-  <!-- HTML structure for each post -->
-  
-  {% if post_count == 0 %}
-    <div class="text-center my-4"> No posts yet</div>
-  {% else %}
-    {% for post in page_posts %}
-      <div class="card mb-3 shadow-sm" class="post" id="post-{{ post.id }}">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-auto">
-              <!-- User avatar -->
-              <img src="https://i.pinimg.com/564x/0e/6e/8c/0e6e8ce4541732f9a6e6b32325939338.jpg" alt="User Avatar" class="rounded-circle" width="50" />
+  </div>
+</div>
+{% endif %}
+
+<!-- Posts -->
+{% if post_count == 0 %}
+  <div class="text-center my-4">No posts yet</div>
+{% else %}
+  {% for post in page_posts %}
+    <div class="card post-card mb-3 shadow-sm" id="post-{{ post.id }}">
+      <div class="card-body">
+        <div class="d-flex">
+          <img src="https://i.pinimg.com/564x/0e/6e/8c/0e6e8ce4541732f9a6e6b32325939338.jpg" alt="User Avatar" class="user-avatar me-3">
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="username text-capitalize">{{ post.user }}</span>
+              <span class="timestamp">{{ post.date }}</span>
             </div>
-            <div class="col">
-              <!-- Username and date -->
-              <h5 class="card-title text-capitalize">{{ post.user }}</h5>
-              <p class="card-text text-muted">{{ post.date }}</p>
-            </div>
-            <div class="col"></div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <!-- Post content -->
-              <p class="card-text">{{ post.content }}</p>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <!-- Number of likes and Like/Unlike button -->
-              <div class="d-flex mt-2">
-                <button class="like-btn btn btn-primary like-button" data-post-id="{{ post.id }}" id="like-btn-{{ post.id }}">
-                  {% if post.id in liked_posts %}
-                    Unlike
-                  {% else %}
-                    Like
-                  {% endif %}
-                </button>
-                <span id="like-count-{{ post.id }}" class="card-text ml-2">{{ post.likes.count }}</span>&nbsp;Likes
-              </div>
+            <div class="post-content">{{ post.content }}</div>
+            <div class="mt-2 d-flex align-items-center">
+              <button class="like-btn btn btn-outline-primary like-button" data-post-id="{{ post.id }}" id="like-btn-{{ post.id }}">
+                {% if post.id in liked_posts %}Unlike{% else %}Like{% endif %}
+              </button>
+              <span id="like-count-{{ post.id }}" class="ms-2">{{ post.likes.count }}</span>&nbsp;Likes
             </div>
           </div>
         </div>
       </div>
-    {% endfor %}
-  {% endif %}
-  <nav aria-label="Page navigation example">
-    <ul class="pagination">
-      {% if page_posts.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_posts.previous_page_number }}">Previous</a>
-        </li>
-      {% endif %}
-      {% if page_posts.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_posts.next_page_number }}">Next</a>
-        </li>
-      {% endif %}
-    </ul>
-  </nav>
+    </div>
+  {% endfor %}
+{% endif %}
+
+<!-- Pagination -->
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center">
+    {% if page_posts.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_posts.previous_page_number }}">Previous</a>
+      </li>
+    {% endif %}
+    {% if page_posts.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_posts.next_page_number }}">Next</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
 {% endblock %}
