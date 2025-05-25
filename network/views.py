@@ -23,14 +23,16 @@ def index(request):
     
     # retrieves the IDs of all posts that the user has liked and stores these 
     # IDs in the liked_posts list, depending on that value of Like/Unlike button changes 
-    liked_posts = []
     if request.user.is_authenticated:
-        liked_posts = Like.objects.filter(user=request.user).values_list('post_id', flat=True)
-   
+        for post in page_posts:
+            post.is_liked_by_user = post.likes.filter(user=request.user).exists()
+    else:
+        for post in page_posts:
+            post.is_liked_by_user = False
+
     return render(request, "network/index.html", {
         "page_posts": page_posts,
-        "liked_posts": liked_posts
-
+        "post_count": all_posts.count(),
     })
 
 
@@ -97,56 +99,62 @@ def newpost(request):
     else:
         return render(request, "network/newpost.html")
 
-@login_required  
+# @login_required  
 def profile_page(request, user_id):
     profile = User.objects.get(pk=user_id)
-    all_posts= Post.objects.filter(user=profile).order_by("id").reverse()
+    all_posts = Post.objects.filter(user=profile).order_by("-id")
     post_count = all_posts.count()
 
-    # pagination: Display 10 posts per page
-    paginator = Paginator(all_posts,10)  
+    paginator = Paginator(all_posts, 10)
     page_number = request.GET.get('page')
     profile_post = paginator.get_page(page_number)
 
-    # If post was liked we would know and value of Like/Unlike button changes  
+    # Safely set is_liked_by_user for each post
     for post in profile_post:
-        post.is_liked_by_user = post.likes.filter(user=request.user).exists()
+        if request.user.is_authenticated:
+            post.is_liked_by_user = post.likes.filter(user=request.user).exists()
+        else:
+            post.is_liked_by_user = False
 
-    if request.method == "POST":
+    # Only allow follow/unfollow if logged in and not viewing own profile
+    is_following = False
+    if request.user.is_authenticated and profile != request.user:
+        is_following = request.user.follows.filter(pk=profile.pk).exists()
+
+    if request.method == "POST" and request.user.is_authenticated and profile != request.user:
         current_user_profile = request.user
-        if user_id != request.user.id:
-            if request.user.follows.filter(pk=user_id).exists():
-                current_user_profile.follows.remove(profile)
-                is_following = False
-            else:
-                current_user_profile.follows.add(profile)
-                is_following = True
+        if current_user_profile.follows.filter(pk=profile.pk).exists():
+            current_user_profile.follows.remove(profile)
+            is_following = False
+        else:
+            current_user_profile.follows.add(profile)
+            is_following = True
+        current_user_profile.save()
+        # (re-render as below)
 
-            current_user_profile.save()
-            return render(request, "network/profile_page.html", {
-                "profile": profile,
-                "post_count": post_count, 
-                "is_following": is_following,
-                "profile_post": profile_post,
-            })
-        
-    return render(request, "network/profile_page.html",{
+    return render(request, "network/profile_page.html", {
         "profile": profile,
         "post_count": post_count,
         "profile_post": profile_post,
-    } )
+        "is_following": is_following,
+    })
 
 #displaying following page contains posts posted by whom user follows
 @login_required
-def following_page(request):
-    all_posts =  Post.objects.filter(user__in=request.user.follows.all()).order_by("id").reverse()
-    paginator = Paginator(all_posts,10)  # Display 10 posts per page
+def home_page(request):
+    # Get posts from users the current user follows
+    all_posts = Post.objects.filter(user__in=request.user.follows.all()).order_by("-id")
+    paginator = Paginator(all_posts, 10)
     page_number = request.GET.get('page')
     page_posts = paginator.get_page(page_number)
 
-    return render(request, "network/index.html", {
-        "all_posts":all_posts,
-        "page_posts": page_posts
+    # Set is_liked_by_user for each post
+    for post in page_posts:
+        post.is_liked_by_user = post.likes.filter(user=request.user).exists()
+
+    return render(request, "network/home.html", {
+        "page_posts": page_posts,
+        "post_count": all_posts.count(),
     })
 
 # Editing post function and updating database with Json
@@ -160,8 +168,10 @@ def edit_post(request, post_id):
         return JsonResponse({"message": "Change successfull", "data": data["content"]})
 
 # Like/Unlike post and updating database with Json
-@login_required
+# @login_required
 def toggle_like(request, post_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'redirect': '/login'}, status=401)
     post = get_object_or_404(Post, id=post_id)
     user = request.user
     like, created = Like.objects.get_or_create(user=user, post=post)
@@ -175,3 +185,10 @@ def toggle_like(request, post_id):
 
     return JsonResponse({"liked": liked, "post_id": post_id, "like_count": like_count})
 
+# @login_required
+def following_page(request):
+    followed_users = request.user.follows.all()
+
+    return render(request, "network/following.html", { 
+        "followed_users": followed_users,  # Pass this to the template
+    })

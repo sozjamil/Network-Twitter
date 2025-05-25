@@ -1,27 +1,9 @@
-{% extends 'network/layout.html' %}
+{% extends "network/layout.html" %}
 
 {% block body %}
-
-{% load static %}
-
-<!-- New Post Form -->
-{% if user.is_authenticated %}
-<div class="card mb-4 shadow-sm tweet-box">
-  <div class="card-body">
-    <form action="{% url 'newpost' %}" method="POST">
-      {% csrf_token %}
-      <textarea name="content" rows="3" placeholder="What's happening?"></textarea>
-      <div class="text-end mt-2">
-        <input type="submit" value="Post" class="btn btn-primary rounded-pill px-4" />
-      </div>
-    </form>
-  </div>
-</div>
-{% endif %}
-
-<!-- Posts -->
+<h3 class="mb-4">Posts from People You Follow</h3>
 {% if post_count == 0 %}
-  <div class="text-center my-4">No posts yet</div>
+  <div class="text-center my-4 text-muted">No posts from people you follow yet.</div>
 {% else %}
   {% for post in page_posts %}
     <div class="card post-card mb-3 shadow-sm" id="post-{{ post.id }}">
@@ -36,8 +18,7 @@
                 </a>
               </span>
               <span class="timestamp">{{ post.date }}</span>
-            </div>{{ liked_posts }}
-
+            </div>
             <div class="post-content">{{ post.content }}</div>
             <div class="mt-2 d-flex align-items-center">
               <button class="like-btn btn btn-light like-button" data-post-id="{{ post.id }}" id="like-btn-{{ post.id }}">
@@ -71,7 +52,4 @@
     {% endif %}
   </ul>
 </nav>
-<script src="{% static 'network/scripts/like.js' %}"></script>
-
 {% endblock %}
-
