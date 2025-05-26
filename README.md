@@ -1,7 +1,7 @@
 # Social Network Platform
 
 A full-featured social media web application built with Django that enables users to connect, share content, and interact with each other's posts.
-and here is the demo video: https://youtu.be/0w-QYaekj_c
+and here is the demo: https://network-twitter-yaya.onrender.com/
 
 ## Technologies Used
 
